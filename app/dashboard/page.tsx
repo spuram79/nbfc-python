@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
+import { companyConfig } from '@/lib/company-config';
 
 export default function DashboardPage() {
   // Mock statistics
@@ -28,7 +29,7 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-blue-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">NBFC Loan Lending</Link>
+          <Link href="/" className="text-2xl font-bold">{companyConfig.name}</Link>
           <nav className="flex space-x-4">
             <Link href="/dashboard" className="px-3 py-1 rounded hover:bg-blue-800 transition">
               Dashboard

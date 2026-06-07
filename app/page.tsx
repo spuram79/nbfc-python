@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { loanProducts } from '@/lib/loan-products';
 import { Banknote, Car, Home, Briefcase, Gem, PlusCircle } from 'lucide-react';
+import { companyConfig } from '@/lib/company-config';
+import { loanProducts } from '@/lib/loan-products';
 
 const iconMap: Record<string, React.ReactNode> = {
   personal: <Banknote className="h-8 w-8" />,
@@ -22,7 +23,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Banknote className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">NBFC Loan Lending</h1>
+            <h1 className="text-2xl font-bold">{companyConfig.name}</h1>
           </div>
           <nav className="flex space-x-4">
             <Link href="/login" className="px-4 py-2 rounded-lg hover:bg-blue-800 transition">
@@ -39,7 +40,7 @@ export default function HomePage() {
       <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Your Trusted Financial Partner
+            {companyConfig.tagline}
           </h2>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
             Quick approvals, competitive rates, and flexible terms across multiple loan products
@@ -70,7 +71,7 @@ export default function HomePage() {
               </div>
               <p className="text-gray-600 mb-4">{product.description}</p>
               <div className="space-y-2 text-sm text-gray-500">
-                <p>Amount: ₹{product.min_amount.toLocaleString()} - ₹{product.max_amount.toLocaleString()}</p>
+                <p>Amount: {companyConfig.currency.symbol}{product.min_amount.toLocaleString()} - {companyConfig.currency.symbol}{product.max_amount.toLocaleString()}</p>
                 <p>Tenure: {product.min_tenure} - {product.max_tenure} months</p>
               </div>
               <Link
@@ -123,7 +124,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <p>&copy; 2026 NBFC Loan Lending. All rights reserved.</p>
+          <p>&copy; 2026 {companyConfig.fullName}. All rights reserved.</p>
         </div>
       </footer>
     </div>

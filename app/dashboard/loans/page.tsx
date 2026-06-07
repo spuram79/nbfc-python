@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, Filter, Search } from 'lucide-react';
+import { companyConfig } from '@/lib/company-config';
 
 export default async function LoansPage({ 
   searchParams 
@@ -22,7 +23,7 @@ export default async function LoansPage({
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="bg-blue-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">NBFC Loan Lending</Link>
+          <Link href="/" className="text-2xl font-bold">{companyConfig.name}</Link>
           <nav className="flex space-x-4">
             <Link href="/dashboard" className="px-3 py-1 rounded hover:bg-blue-800 transition">
               Dashboard
@@ -102,7 +103,7 @@ export default async function LoansPage({
                     <td className="py-3 px-4 font-medium">{loan.id}</td>
                     <td className="py-3 px-4">{loan.customer}</td>
                     <td className="py-3 px-4">{loan.product}</td>
-                    <td className="py-3 px-4">₹{loan.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4">{companyConfig.currency.symbol}{loan.amount.toLocaleString()}</td>
                     <td className="py-3 px-4">
                       {loan.score ? (
                         <span className={`px-2 py-1 rounded font-medium ${
