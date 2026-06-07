@@ -53,9 +53,6 @@ export default function LoginPage() {
                 <input type="checkbox" id="remember" />
                 <label htmlFor="remember" className="text-sm text-gray-600">Remember me</label>
               </div>
-              <Link href="/forgot-password" className="text-sm text-blue-600">
-                Forgot Password?
-              </Link>
             </div>
 
             <button type="submit" className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">

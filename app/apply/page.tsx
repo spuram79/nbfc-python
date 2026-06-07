@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { loanProducts } from '@/lib/loan-products';
 import { Banknote, Car, Home, Briefcase, Gem, PlusCircle } from 'lucide-react';
 
@@ -25,9 +26,14 @@ export default function ApplyPage() {
       </header>
 
       <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
-          Choose Your Loan Product
-        </h2>
+        <div className="flex items-center mb-6">
+          <Link href="/" className="mr-4">
+            <ArrowLeft className="h-5 w-5 text-gray-600" />
+          </Link>
+          <h2 className="text-3xl font-bold text-gray-800">
+            Choose Your Loan Product
+          </h2>
+        </div>
         <p className="text-center text-gray-600 mb-12">
           Select from our wide range of loan products tailored to your needs
         </p>

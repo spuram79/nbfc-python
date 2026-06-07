@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { ArrowLeft, Filter, Search } from 'lucide-react';
 
-export default function LoanOfficerDashboard({ 
+export default async function LoanOfficerDashboard({ 
   searchParams 
 }: { 
-  searchParams: { status?: string } 
+  searchParams: Promise<{ status?: string }> 
 }) {
-  const statusFilter = searchParams.status || 'submitted';
+  const { status } = await searchParams;
+  const statusFilter = status || 'submitted';
 
   const applications = [
     { id: 'LA-00123', customer: 'Rajesh Kumar', product: 'Personal Loan', amount: 500000, status: 'submitted', date: '2026-06-05' },
@@ -26,7 +27,7 @@ export default function LoanOfficerDashboard({
             <Link href="/dashboard/loans" className="px-3 py-1 rounded hover:bg-blue-800 transition">
               Applications
             </Link>
-            <Link href="/customers" className="px-3 py-1 rounded hover:bg-blue-800 transition">
+            <Link href="/dashboard/customers" className="px-3 py-1 rounded hover:bg-blue-800 transition">
               Customers
             </Link>
           </nav>

@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { loanProducts } from '@/lib/loan-products';
 
-interface ApplyLoanPageProps {
-  params: {
-    loanType: string;
-  };
-}
-
-export default function ApplyLoanPage({ params }: ApplyLoanPageProps) {
-  const product = loanProducts.find(p => p.id === params.loanType);
+export default async function ApplyLoanPage({ 
+  params 
+}: { 
+  params: Promise<{ loanType: string }>
+}) {
+  const { loanType } = await params;
+  const product = loanProducts.find(p => p.id === loanType);
   
   if (!product) {
     notFound();
@@ -194,10 +194,16 @@ export default function ApplyLoanPage({ params }: ApplyLoanPageProps) {
       </header>
 
       <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <div className="flex items-center mb-6">
+          <Link href="/apply" className="mr-4">
+            <ArrowLeft className="h-5 w-5 text-gray-600" />
+          </Link>
+          <h2 className="text-2xl font-bold text-gray-800">
             Apply for {product.name}
           </h2>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-8">
           <p className="text-gray-600 mb-6">{product.description}</p>
 
           <form className="space-y-6" action={`/api/loans`} method="POST">
@@ -307,8 +313,8 @@ export default function ApplyLoanPage({ params }: ApplyLoanPageProps) {
             </div>
 
             <div className="flex space-x-4">
-              <Link href="/" className="flex-1 text-center px-4 py-2 border rounded-lg hover:bg-gray-50 transition">
-                Cancel
+              <Link href="/apply" className="flex-1 text-center px-4 py-2 border rounded-lg hover:bg-gray-50 transition">
+                Back to Products
               </Link>
               <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 Submit Application

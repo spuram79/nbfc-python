@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { ArrowLeft, Filter, Search } from 'lucide-react';
 
-export default function LoansPage({ 
+export default async function LoansPage({ 
   searchParams 
 }: { 
-  searchParams: { status?: string } 
+  searchParams: Promise<{ status?: string }> 
 }) {
-  const statusFilter = searchParams.status || 'all';
+  const { status } = await searchParams;
+  const statusFilter = status || 'all';
 
   // Mock loan applications
   const loans = [

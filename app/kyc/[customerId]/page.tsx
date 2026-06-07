@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
-export default function KYCPage({ 
+export default async function KYCPage({ 
   params 
 }: { 
-  params: { customerId: string } 
+  params: Promise<{ customerId: string }>
 }) {
+  const { customerId } = await params;
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="bg-blue-900 text-white shadow-md">
@@ -14,14 +16,19 @@ export default function KYCPage({
       </header>
 
       <main className="flex-1 py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <div className="flex items-center mb-6">
+          <Link href="/login" className="mr-4">
+            <ArrowLeft className="h-5 w-5 text-gray-600" />
+          </Link>
+          <h2 className="text-2xl font-bold text-gray-800">
             KYC Verification
           </h2>
-          <p className="text-gray-600 mb-6">
-            Upload your documents for e-KYC verification
-          </p>
+        </div>
+        <p className="text-gray-600 mb-6">
+          Upload your documents for e-KYC verification
+        </p>
 
+        <div className="bg-white rounded-lg shadow-md p-8">
           <div className="space-y-6">
             {/* KYC Status */}
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -31,7 +38,7 @@ export default function KYCPage({
             </div>
 
             {/* Document Upload */}
-            <form className="space-y-4" action={`/api/customers/${params.customerId}/kyc`} method="POST">
+            <form className="space-y-4" action={`/api/customers/${customerId}/kyc`} method="POST">
               <div className="border rounded-lg p-4">
                 <h3 className="font-semibold mb-4">Required Documents</h3>
                 
