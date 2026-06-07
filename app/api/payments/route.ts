@@ -67,9 +67,10 @@ export async function POST(request: NextRequest) {
 // GET /api/payments/[id] - Get specific payment
 export async function GET_payment(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const payment = mockPayments[params.id];
+  const { id } = await params;
+  const payment = mockPayments[id];
 
   if (!payment) {
     return NextResponse.json(
@@ -84,9 +85,10 @@ export async function GET_payment(
 // DELETE /api/payments/[id] - Refund payment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const payment = mockPayments[params.id];
+  const { id } = await params;
+  const payment = mockPayments[id];
 
   if (!payment) {
     return NextResponse.json(
@@ -95,7 +97,7 @@ export async function DELETE(
     );
   }
 
-  mockPayments[params.id].status = 'refunded';
+  mockPayments[id].status = 'refunded';
 
   return NextResponse.json({
     success: true,

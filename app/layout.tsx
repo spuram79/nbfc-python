@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { companyConfig } from "@/lib/company-config";
+import { CompanyProvider } from "@/lib/company-context";
+import { defaultCompany } from "@/lib/company-config-template";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: companyConfig.name,
-  description: companyConfig.tagline,
+  title: defaultCompany.name,
+  description: `${defaultCompany.tagline} - SaaS Multi-Tenant NBFC Platform`,
 };
 
 export default function RootLayout({
@@ -28,7 +29,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <CompanyProvider>
+          {children}
+        </CompanyProvider>
+      </body>
     </html>
   );
 }

@@ -9,14 +9,15 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search');
 
-  let results = Object.values(mockCustomers);
+  let results: (typeof mockCustomers)[keyof typeof mockCustomers][] = Object.values(mockCustomers);
   
   if (search) {
-    results = results.filter((customer: Record<string, unknown>) => 
-      customer.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-      customer.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-      customer.mobile?.includes(search)
-    );
+    results = results.filter((customer: unknown) => {
+      const c = customer as { first_name?: string; last_name?: string; mobile?: string };
+      return c.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+        c.last_name?.toLowerCase().includes(search.toLowerCase()) ||
+        c.mobile?.includes(search);
+    });
   }
 
   return NextResponse.json({
@@ -62,9 +63,10 @@ export async function POST(request: NextRequest) {
 // GET /api/customers/[id] - Get specific customer
 export async function GET_customer(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const customer = mockCustomers[params.id];
+  const { id } = await params;
+  const customer = mockCustomers[id];
   
   if (!customer) {
     return NextResponse.json(
@@ -79,10 +81,11 @@ export async function GET_customer(
 // PUT /api/customers/[id] - Update customer
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const body = await request.json();
-  const customer = mockCustomers[params.id];
+  const customer = mockCustomers[id];
 
   if (!customer) {
     return NextResponse.json(
@@ -91,11 +94,11 @@ export async function PUT(
     );
   }
 
-  mockCustomers[params.id] = {
+  mockCustomers[id] = {
     ...customer,
     ...body,
     updated_at: new Date().toISOString(),
   };
 
-  return NextResponse.json(mockCustomers[params.id]);
+  return NextResponse.json(mockCustomers[id]);
 }

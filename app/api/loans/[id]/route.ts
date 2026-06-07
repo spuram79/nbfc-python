@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Mock database
-const mockLoans: Record<string, Record<string, unknown>> = {};
+declare global {
+  var mockLoans: Record<string, Record<string, unknown>>;
+}
+
+const mockLoans = global.mockLoans || {};
 
 // GET /api/loans/[id] - Get specific loan
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const loan = mockLoans[params.id];
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const loan = mockLoans[id];
   
   if (!loan) {
     return NextResponse.json(
@@ -17,10 +22,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json(loan);
 }
 
-// POST /api/loans/[id]/underwrite - Trigger underwriting
-export async function POST_underwrite(request: NextRequest, { params }: { params: { id: string } }) {
-  const loan = mockLoans[params.id];
-  
+// PUT /api/loans/[id] - Update loan application
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const body = await request.json();
+  const loan = mockLoans[id];
+
   if (!loan) {
     return NextResponse.json(
       { error: 'Loan not found' },
@@ -28,52 +35,11 @@ export async function POST_underwrite(request: NextRequest, { params }: { params
     );
   }
 
-  // Mock underwriting logic
-  const score = Math.floor(Math.random() * 100) + 1;
-  const decision = score >= 70 ? 'APPROVE' : 'REJECT';
-
-  mockLoans[params.id] = {
+  mockLoans[id] = {
     ...loan,
-    underwriting_status: decision === 'APPROVE' ? 'approved' : 'rejected',
-    underwriting_score: score,
+    ...body,
     updated_at: new Date().toISOString(),
   };
 
-  return NextResponse.json({
-    decision,
-    score,
-  });
-}
-
-// POST /api/loans/[id]/disburse - Initiate disbursement
-export async function POST_disburse(request: NextRequest, { params }: { params: { id: string } }) {
-  const loan = mockLoans[params.id];
-  
-  if (!loan) {
-    return NextResponse.json(
-      { error: 'Loan not found' },
-      { status: 404 }
-    );
-  }
-
-  if (loan.underwriting_status !== 'approved') {
-    return NextResponse.json(
-      { error: 'Loan not approved for disbursement' },
-      { status: 400 }
-    );
-  }
-
-  // Mock disbursement
-  mockLoans[params.id] = {
-    ...loan,
-    status: 'disbursed',
-    disbursement_date: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  return NextResponse.json({
-    disbursement_id: `disp_${Date.now()}`,
-    status: 'PENDING',
-    message: 'Disbursement initiated successfully',
-  });
+  return NextResponse.json(mockLoans[id]);
 }

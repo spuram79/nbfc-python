@@ -14,13 +14,13 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status');
 
   // Simulate filtering
-  let results = Object.values(mockLoans);
+  let results: unknown[] = Object.values(mockLoans);
   
   if (customerId) {
-    results = results.filter((loan: Record<string, unknown>) => loan.customer_id === customerId);
+    results = results.filter((loan: unknown) => (loan as Record<string, unknown>).customer_id === customerId);
   }
   if (status) {
-    results = results.filter((loan: Record<string, unknown>) => loan.status === status);
+    results = results.filter((loan: unknown) => (loan as Record<string, unknown>).status === status);
   }
 
   return NextResponse.json({
@@ -73,45 +73,4 @@ export async function POST(request: NextRequest) {
   mockLoans[application.application_id] = application;
 
   return NextResponse.json(application, { status: 201 });
-}
-
-// GET /api/loans/[id] - Get specific loan
-export async function GET_loan(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const loan = mockLoans[params.id];
-  
-  if (!loan) {
-    return NextResponse.json(
-      { error: 'Loan not found' },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json(loan);
-}
-
-// PUT /api/loans/[id] - Update loan application
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const body = await request.json();
-  const loan = mockLoans[params.id];
-
-  if (!loan) {
-    return NextResponse.json(
-      { error: 'Loan not found' },
-      { status: 404 }
-    );
-  }
-
-  mockLoans[params.id] = {
-    ...loan,
-    ...body,
-    updated_at: new Date().toISOString(),
-  };
-
-  return NextResponse.json(mockLoans[params.id]);
 }
