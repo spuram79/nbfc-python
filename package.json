@@ -10,6 +10,8 @@
     "db:init": "node -e \"require('./lib/db').initializeDatabase().catch(console.error)\""
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1063.0",
+    "@aws-sdk/lib-storage": "^3.1063.0",
     "@types/jsonwebtoken": "^9.0.10",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.400.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/aws-sdk": "^0.0.42",
     "@types/node": "^20",
     "@types/pg": "^8.10.0",
     "@types/react": "^19",
