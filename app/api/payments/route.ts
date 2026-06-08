@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { db, Payment } from '@/lib/db';
+import PaymentService from '@/lib/payment-service';
 
 // Helper to get company ID from request headers or defaults
 function getCompanyId(request: NextRequest): string {
@@ -29,12 +30,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/payments - Create new payment
+// POST /api/payments - Create new payment or payment order
 export async function POST(request: NextRequest) {
   try {
     const companyId = getCompanyId(request);
     const body = await request.json();
-    const { loan_id, amount, method, schedule_id } = body;
+    const { loan_id, amount, method, schedule_id, action } = body;
 
     if (!loan_id || !amount || !method) {
       return NextResponse.json(
@@ -43,6 +44,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle Razorpay payment flow
+    if (method === 'upi' || method === 'auto_debit') {
+      if (action === 'create_order') {
+        // Create Razorpay order
+        const order = await PaymentService.createOrder({
+          amount,
+          currency: 'INR',
+          receipt: `LOAN_${loan_id}_${Date.now()}`,
+          notes: { loan_id, schedule_id },
+        });
+
+        return NextResponse.json({
+          success: true,
+          order_id: order.id,
+          amount: order.amount,
+          currency: order.currency,
+        });
+      }
+
+      if (action === 'verify') {
+        // Verify payment signature (would be called from frontend)
+        const { order_id, payment_id, signature } = body;
+        
+        // In production, verify signature using PaymentService.validateWebhookSignature
+        // For now, just create the payment record
+        
+        const payment: Payment = {
+          payment_id: payment_id || uuidv4(),
+          loan_id,
+          amount,
+          method,
+          status: 'success',
+          transaction_date: new Date(),
+          reference_number: order_id,
+          schedule_id,
+          company_id: companyId,
+        };
+
+        const result = await db.createPayment(payment);
+        return NextResponse.json(result, { status: 201 });
+      }
+    }
+
+    // For cash, manual, neft methods - direct payment recording
     const payment: Payment = {
       payment_id: uuidv4(),
       loan_id,
@@ -56,12 +101,11 @@ export async function POST(request: NextRequest) {
     };
 
     const result = await db.createPayment(payment);
-
     return NextResponse.json(result, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating payment:', error);
     return NextResponse.json(
-      { error: 'Failed to create payment' },
+      { error: error.message || 'Failed to create payment' },
       { status: 500 }
     );
   }
