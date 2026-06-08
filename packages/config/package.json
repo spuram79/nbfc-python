@@ -2,5 +2,9 @@
   "name": "@nbfc/config",
   "version": "1.0.0",
   "description": "Shared Configuration",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ]
 }

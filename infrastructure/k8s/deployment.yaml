@@ -1,0 +1,368 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nbfc-platform
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nbfc-config
+  namespace: nbfc-platform
+data:
+  JWT_SECRET: "your-jwt-secret-key-change-in-production"
+  DATABASE_URL: "postgresql://postgres:password@postgres-service:5432/nbfc"
+  REDIS_URL: "redis://redis-service:6379"
+  KAFKA_BROKERS: "kafka-service:9092"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: nbfc/auth-service:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: customer-service
+  template:
+    metadata:
+      labels:
+        app: customer-service
+    spec:
+      containers:
+      - name: customer-service
+        image: nbfc/customer-service:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: customer-service
+  ports:
+    - protocol: TCP
+      port: 3003
+      targetPort: 3003
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: loan-service
+  template:
+    metadata:
+      labels:
+        app: loan-service
+    spec:
+      containers:
+      - name: loan-service
+        image: nbfc/loan-service:latest
+        ports:
+        - containerPort: 3004
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: loan-service
+  ports:
+    - protocol: TCP
+      port: 3004
+      targetPort: 3004
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: underwriting-service
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: underwriting-service
+  template:
+    metadata:
+      labels:
+        app: underwriting-service
+    spec:
+      containers:
+      - name: underwriting-service
+        image: nbfc/underwriting-service:latest
+        ports:
+        - containerPort: 3007
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: underwriting-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: underwriting-service
+  ports:
+    - protocol: TCP
+      port: 3007
+      targetPort: 3007
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "nbfc"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "password"
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: bitnami/kafka:latest
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_CFG_PROCESS_ROLS
+          value: "controller,broker"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://:9092,CONTROLLER://:9093"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: kafka
+  ports:
+    - protocol: TCP
+      port: 9092
+      targetPort: 9092
+  type: ClusterIP
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nbfc-ingress
+  namespace: nbfc-platform
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: nbfc.local
+    http:
+      paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 3001
+      - path: /api/customer
+        pathType: Prefix
+        backend:
+          service:
+            name: customer-service
+            port:
+              number: 3003
+      - path: /api/loan
+        pathType: Prefix
+        backend:
+          service:
+            name: loan-service
+            port:
+              number: 3004
+      - path: /api/underwriting
+        pathType: Prefix
+        backend:
+          service:
+            name: underwriting-service
+            port:
+              number: 3007
