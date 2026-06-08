@@ -1,98 +1,121 @@
+/**
+ * Reports API Routes
+ * Generates RBI-compliant reports and portfolio analytics
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
+import ReportingService, { ReportType } from '@/lib/reporting-service';
 
-// Mock database
-const mockReports: Record<string, Record<string, unknown>> = {};
+// Helper to get company ID from request headers
+function getCompanyId(request: NextRequest): string {
+  return request.headers.get('x-company-id') || 'fintrust';
+}
 
-// GET /api/reports - List all reports
+// GET /api/reports - List available reports
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type');
-
-  const reports = type 
-    ? Object.values(mockReports).filter((r: Record<string, unknown>) => r.type === type)
-    : Object.values(mockReports);
-
-  return NextResponse.json({ reports, total: reports.length });
-}
-
-// POST /api/reports - Generate new report
-export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { type, period, format = 'pdf' } = body;
-
-  const validTypes = ['mis', 'capital_adequacy', 'gl_return', 'credit_appraisal', 'npa'];
-  if (!type || !validTypes.includes(type)) {
-    return NextResponse.json(
-      { error: 'Invalid report type. Valid types: ' + validTypes.join(', ') },
-      { status: 400 }
-    );
-  }
-
-  const report = {
-    report_id: uuidv4(),
-    type,
-    period,
-    format,
-    status: 'processing',
-    created_at: new Date().toISOString(),
-    download_url: null as string | null,
-  };
-
-  mockReports[report.report_id] = report;
-
-  // Simulate async processing
-  setTimeout(() => {
-    mockReports[report.report_id].status = 'ready';
-    mockReports[report.report_id].download_url = `/api/reports/${report.report_id}/download`;
-    mockReports[report.report_id].generated_at = new Date().toISOString();
-  }, 3000);
-
-  return NextResponse.json(report, { status: 201 });
-}
-
-// GET /api/reports/[id] - Get specific report
-export async function GET_report(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const report = mockReports[params.id];
-
-  if (!report) {
-    return NextResponse.json(
-      { error: 'Report not found' },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json(report);
-}
-
-// GET /api/reports/[id]/download - Download report
-export async function GET_download(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const report = mockReports[params.id];
-
-  if (!report) {
-    return NextResponse.json(
-      { error: 'Report not found' },
-      { status: 404 }
-    );
-  }
-
-  if (report.status !== 'ready') {
-    return NextResponse.json(
-      { error: 'Report not ready for download' },
-      { status: 400 }
-    );
-  }
-
-  // Return mock download response
   return NextResponse.json({
-    download_url: report.download_url,
-    filename: `${report.type}_${report.period}.${report.format}`,
-    size: '2.3 MB',
+    reports: [
+      {
+        id: 'sardi',
+        name: 'SARDI Report',
+        description: 'Asset Quality - RBI Monthly Return',
+        frequency: 'monthly',
+        format: ['json', 'xlsx', 'csv'],
+      },
+      {
+        id: 'schedule_iii',
+        name: 'Schedule III',
+        description: 'Balance Sheet Data - RBI Quarterly Return',
+        frequency: 'quarterly',
+        format: ['json', 'xlsx', 'csv'],
+      },
+      {
+        id: 'portfolio',
+        name: 'Portfolio Summary',
+        description: 'Portfolio Performance Overview',
+        frequency: 'weekly',
+        format: ['json', 'csv'],
+      },
+      {
+        id: 'npa_status',
+        name: 'NPA Status',
+        description: 'Non-Performing Asset Analysis',
+        frequency: 'monthly',
+        format: ['json', 'xlsx', 'csv'],
+      },
+    ],
   });
+}
+
+// POST /api/reports/generate - Generate specific report
+export async function POST(request: NextRequest) {
+  try {
+    const companyId = getCompanyId(request);
+    const body = await request.json();
+    const { report_type, from_date, to_date, format } = body;
+
+    if (!report_type || !from_date || !to_date) {
+      return NextResponse.json(
+        { error: 'Missing required fields: report_type, from_date, to_date' },
+        { status: 400 }
+      );
+    }
+
+    const params = {
+      company_id: companyId,
+      from_date: new Date(from_date),
+      to_date: new Date(to_date),
+      format: format || 'json' as 'json' | 'xlsx' | 'csv',
+    };
+
+    let report: any;
+
+    switch (reportTypeFromString(report_type)) {
+      case 'sardi':
+        report = await ReportingService.generateSardiReport(params);
+        break;
+      case 'schedule_iii':
+        report = await ReportingService.generateScheduleIIIReport(params);
+        break;
+      case 'portfolio':
+        report = await ReportingService.generatePortfolioReport(params);
+        break;
+      case 'npa_status':
+        report = await ReportingService.generateNpaStatusReport(params);
+        break;
+      default:
+        return NextResponse.json(
+          { error: `Unknown report type: ${report_type}` },
+          { status: 400 }
+        );
+    }
+
+    // Export to requested format
+    const buffer = await ReportingService.exportReport(report, params.format);
+
+    // Return report data
+    return NextResponse.json({
+      success: true,
+      report_type,
+      format: params.format,
+      data: report,
+      file_size: buffer.length,
+    });
+  } catch (error) {
+    console.error('Error generating report:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate report' },
+      { status: 500 }
+    );
+  }
+}
+
+function reportTypeFromString(s: string): ReportType {
+  switch (s.toLowerCase()) {
+    case 'sardi': return 'sardi';
+    case 'schedule_iii': return 'schedule_iii';
+    case 'portfolio': return 'portfolio';
+    case 'npa_status': return 'npa_status';
+    default: return 'portfolio';
+  }
 }
