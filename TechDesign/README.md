@@ -15,12 +15,16 @@ This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC c
 - Real-time disbursement and repayments
 - Regulatory compliance (RBI)
 - Multi-tenant SaaS architecture
+- Payment gateway integration (Razorpay)
+- S3 document storage for KYC
+- Collections and NPA management
+- RBI-compliant reporting
 
 ## Documentation Structure
 
 | Directory | Description |
 |-----------|-------------|
-| `diagrams/` | Draw.io (.vsdx) architecture and design diagrams |
+| `diagrams/` | Draw.io (.drawio) architecture and design diagrams |
 | `api/` | API design and endpoint documentation |
 | `data/` | Data model and database schema documentation |
 | `security/` | Security architecture and compliance documentation |
@@ -30,10 +34,10 @@ This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC c
 
 ## Quick Links
 
-- [Architecture Overview](./diagrams/Architecture.vsdx)
-- [Component Architecture](./diagrams/ComponentArchitecture.vsdx)
-- [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.vsdx)
-- [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.vsdx)
+- [Architecture Overview](./diagrams/Architecture.drawio)
+- [Component Architecture](./diagrams/ComponentArchitecture.drawio)
+- [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.drawio)
+- [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.drawio)
 - [API Design](./api/README.md)
 - [Data Model](./data/README.md)
 - [Security Design](./security/README.md)
@@ -44,10 +48,10 @@ This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC c
 
 ## Table of Contents
 
-1. [System Architecture](./diagrams/Architecture.vsdx)
-2. [Component Architecture](./diagrams/ComponentArchitecture.vsdx)
-3. [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.vsdx)
-4. [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.vsdx)
+1. [System Architecture](./diagrams/Architecture.drawio)
+2. [Component Architecture](./diagrams/ComponentArchitecture.drawio)
+3. [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.drawio)
+4. [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.drawio)
 5. [API Design](./api/README.md)
 6. [Data Model](./data/README.md)
 7. [Security Architecture](./security/README.md)
@@ -122,13 +126,18 @@ npm run build
 
 ## API Endpoints Summary
 
-| Category | Endpoints |
-|----------|-----------|
-| Auth | `POST /api/auth/login`, `POST /api/auth/logout` |
-| Customers | `GET/POST /api/customers`, `GET/PUT /api/customers/[id]`, `POST /api/customers/[id]/kyc` |
-| Loans | `GET/POST /api/loans`, `GET/PUT /api/loans/[id]`, `POST /api/loans/[id]/underwrite`, `POST /api/loans/[id]/disburse` |
-| Payments | `GET/POST /api/payments` |
-| Reports | `GET /api/reports/regulatory`, `GET /api/metrics/portfolio` |
+| Category | Endpoints | Description |
+|----------|-----------|-------------|
+| Auth | `POST /api/auth/login`, `DELETE /api/auth/logout` | Authentication and session management |
+| Company | `GET/POST /api/company` | Company registration and configuration |
+| Customers | `GET/POST /api/customers`, `GET/PUT /api/customers/[id]`, `POST /api/customers/[id]/kyc` | Customer management and KYC |
+| Loans | `GET/POST /api/loans`, `GET/PUT /api/loans/[id]`, `POST /api/loans/[id]/underwrite`, `POST /api/loans/[id]/disburse` | Loan application and disbursement |
+| Schedules | `GET/POST /api/schedules` | Repayment schedule generation |
+| Payments | `GET/POST /api/payments`, `DELETE /api/payments/[id]` | Payment processing and refunds |
+| Collections | `GET /api/collections` | NPA management and recovery |
+| Reports | `GET /api/reports`, `POST /api/reports/generate` | RBI-compliant report generation |
+| Metrics | `GET /api/metrics` | Portfolio analytics |
+| Webhook | `POST /api/webhook` | Payment gateway webhooks |
 
 ## Database Schema Overview
 
