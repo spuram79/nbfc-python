@@ -26,26 +26,35 @@ This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC c
 | `security/` | Security architecture and compliance documentation |
 | `deployment/` | Deployment, CI/CD, and infrastructure documentation |
 | `components/` | Component-level documentation (frontend/backend) |
+| `business-process/` | Business process flows and requirements documentation |
 
 ## Quick Links
 
 - [Architecture Overview](./diagrams/Architecture.vsdx)
 - [Component Architecture](./diagrams/ComponentArchitecture.vsdx)
+- [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.vsdx)
+- [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.vsdx)
 - [API Design](./api/README.md)
 - [Data Model](./data/README.md)
 - [Security Design](./security/README.md)
 - [Deployment Guide](./deployment/README.md)
 - [Components](./components/README.md)
+- [Business Process Flow](./business-process/BusinessProcessFlow.md)
+- [Personal Loan Business Process](./business-process/PersonalLoanBusinessProcess.md)
 
 ## Table of Contents
 
 1. [System Architecture](./diagrams/Architecture.vsdx)
 2. [Component Architecture](./diagrams/ComponentArchitecture.vsdx)
-3. [API Design](./api/README.md)
-4. [Data Model](./data/README.md)
-5. [Security Architecture](./security/README.md)
-6. [Deployment Architecture](./deployment/README.md)
-7. [Frontend Components](./components/README.md)
+3. [Personal Loan Process Diagram](./diagrams/PersonalLoanProcess.vsdx)
+4. [Loan Disposal Process Diagram](./diagrams/LoanDisposalProcess.vsdx)
+5. [API Design](./api/README.md)
+6. [Data Model](./data/README.md)
+7. [Security Architecture](./security/README.md)
+8. [Deployment Architecture](./deployment/README.md)
+9. [Frontend Components](./components/README.md)
+10. [Business Process Flow](./business-process/BusinessProcessFlow.md)
+11. [Personal Loan Business Process](./business-process/PersonalLoanBusinessProcess.md)
 
 ## Technology Stack
 
