@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-08T08:00:00Z" agent="Shimmer" etag="personal-loan-process" version="24.7.3">
+  <diagram name="Personal Loan Process" id="1">
+    <mxGraphModel dx="1424" dy="1062" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shostraights="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Personal Loan Business Process Flow" style="rounded=1;whiteSpace=wrap;html=1;fontSize=20;fontStyle=1;" vertex="1" parent="1" cx="413.5" cy="30" mxObjectId="2">
+          <mxGeometry x="-4" y="-10" width="835" height="60" as="geometry" />
+        </mxCell>
+        <!-- Start -->
+        <mxCell id="start" value="Start: Customer Registration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="100" mxObjectId="start">
+          <mxGeometry x="60" y="80" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- KYC -->
+        <mxCell id="kyc" value="KYC Verification&#10;Aadhaar, PAN, Address Proof" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="200" mxObjectId="kyc">
+          <mxGeometry x="60" y="180" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Application -->
+        <mxCell id="app" value="Loan Application&#10;Personal Loan Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="300" mxObjectId="app">
+          <mxGeometry x="60" y="280" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Pre-assessment -->
+        <mxCell id="pre" value="Pre-assessment&#10;Income, CIBIL, Documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="400" mxObjectId="pre">
+          <mxGeometry x="60" y="380" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Underwriting -->
+        <mxCell id="under" value="Underwriting&#10;Risk Assessment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E91E63;strokeColor=#ffffff;" vertex="1" parent="1" cx="250" cy="500" mxObjectId="under">
+          <mxGeometry x="210" y="480" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Decision -->
+        <mxCell id="decision" value="Decision Point" style="diamond;whiteSpace=wrap;html=1;fillColor=#FFC107;strokeColor=#ffffff;" vertex="1" parent="1" cx="400" cy="500" mxObjectId="decision">
+          <mxGeometry x="310" y="470" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Approved -->
+        <mxCell id="approved" value="Approved" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="500" mxObjectId="approved">
+          <mxGeometry x="510" y="470" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Sanction -->
+        <mxCell id="sanction" value="Sanction Letter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00BCD4;strokeColor=#ffffff;" vertex="1" parent="1" cx="700" cy="500" mxObjectId="sanction">
+          <mxGeometry x="660" y="480" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Disbursement -->
+        <mxCell id="disburse" value="Disbursement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="700" cy="600" mxObjectId="disburse">
+          <mxGeometry x="660" y="580" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Active Loan -->
+        <mxCell id="active" value="Active Loan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="700" cy="700" mxObjectId="active">
+          <mxGeometry x="660" y="660" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Rejected -->
+        <mxCell id="rejected" value="Rejected" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F44336;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="580" mxObjectId="rejected">
+          <mxGeometry x="510" y="550" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="edge1" value="" edge="1" parent="1" source="start" target="kyc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" edge="1" parent="1" source="kyc" target="app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" edge="1" parent="1" source="app" target="pre">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="" edge="1" parent="1" source="pre" target="under">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="" edge="1" parent="1" source="under" target="decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="Approve" edge="1" parent="1" source="decision" target="approved">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="Reject" edge="1" parent="1" source="decision" target="rejected">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" value="" edge="1" parent="1" source="approved" target="sanction">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" value="" edge="1" parent="1" source="sanction" target="disburse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" value="" edge="1" parent="1" source="disburse" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Repayment Loop -->
+        <mxCell id="repay" value="Repayment Schedule&#10;Monthly Installments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8BC34A;strokeColor=#ffffff;" vertex="1" parent="1" cx="700" cy="800" mxObjectId="repay">
+          <mxGeometry x="660" y="780" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="edge11" value="" edge="1" parent="1" source="active" target="repay">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge12" value="Paid" edge="1" parent="1" source="repay" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

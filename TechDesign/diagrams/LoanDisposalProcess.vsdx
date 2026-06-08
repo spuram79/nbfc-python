@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-08T08:00:00Z" agent="Shimmer" etag="loan-disposal-process" version="24.7.3">
+  <diagram name="Loan Disposal Process" id="1">
+    <mxGraphModel dx="1424" dy="1062" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shostraights="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Loan Disposal Process Flow" style="rounded=1;whiteSpace=wrap;html=1;fontSize=20;fontStyle=1;" vertex="1" parent="1" cx="413.5" cy="30" mxObjectId="2">
+          <mxGeometry x="-4" y="-10" width="835" height="60" as="geometry" />
+        </mxCell>
+        <!-- Start -->
+        <mxCell id="start" value="Loan Matured/Closed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="100" mxObjectId="start">
+          <mxGeometry x="60" y="80" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Settlement Calc -->
+        <mxCell id="settlement" value="Calculate Final<br/>Settlement Amount" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="200" mxObjectId="settlement">
+          <mxGeometry x="60" y="180" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Closing Statement -->
+        <mxCell id="statement" value="Generate Closing<br/>Statement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="300" mxObjectId="statement">
+          <mxGeometry x="60" y="280" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Collect Payment -->
+        <mxCell id="collect" value="Collect Final<br/>Payment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#ffffff;" vertex="1" parent="1" cx="100" cy="400" mxObjectId="collect">
+          <mxGeometry x="60" y="380" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Decision Diamond -->
+        <mxCell id="decision" value="Payment<br/>Complete?" style="diamond;whiteSpace=wrap;html=1;fillColor=#FFC107;strokeColor=#ffffff;" vertex="1" parent="1" cx="250" cy="400" mxObjectId="decision">
+          <mxGeometry x="210" y="370" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Close Account -->
+        <mxCell id="close" value="Close Loan<br/>Account" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#ffffff;" vertex="1" parent="1" cx="400" cy="400" mxObjectId="close">
+          <mxGeometry x="360" y="370" width="80" height="80" as="geometry" />
+        </mxCell>
+        <!-- Collections -->
+        <mxCell id="collections" value="Initiate<br/>Collections" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="400" mxObjectId="collections">
+          <mxGeometry x="510" y="380" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Recovery -->
+        <mxCell id="recovery" value="Recovery<br/>Process" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E91E63;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="520" mxObjectId="recovery">
+          <mxGeometry x="510" y="500" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Write-off -->
+        <mxCell id="writeoff" value="Write-off &amp;<br/>Provision Booking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#607D8B;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="640" mxObjectId="writeoff">
+          <mxGeometry x="510" y="620" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- RBI Reporting -->
+        <mxCell id="report" value="RBI<br/>Reporting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#795548;strokeColor=#ffffff;" vertex="1" parent="1" cx="550" cy="760" mxObjectId="report">
+          <mxGeometry x="510" y="740" width="80" height="60" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="edge1" value="" edge="1" parent="1" source="start" target="settlement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" edge="1" parent="1" source="settlement" target="statement">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" edge="1" parent="1" source="statement" target="collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="Yes" edge="1" parent="1" source="decision" target="close">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="No" edge="1" parent="1" source="decision" target="collections">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="" edge="1" parent="1" source="collections" target="recovery">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="Unsuccessful" edge="1" parent="1" source="recovery" target="writeoff">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" value="" edge="1" parent="1" source="writeoff" target="report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" value="Completion" edge="1" parent="1" source="close" target="report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
