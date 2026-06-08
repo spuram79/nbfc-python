@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import ReportingService, { ReportType } from '@/lib/reporting-service';
+import { ReportingService, ReportType } from '@/lib/reporting-service';
 
 // Helper to get company ID from request headers
 function getCompanyId(request: NextRequest): string {

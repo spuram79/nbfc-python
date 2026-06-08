@@ -81,8 +81,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         interest: interestPerInstallment,
         total_payment: monthlyPayment,
         status: 'pending',
-        paid_amount: 0,
-        created_at: new Date(),
       });
     }
 

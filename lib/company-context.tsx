@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { CompanyTenant, getCompanyBySubdomain } from '@/lib/company-store';
-import { defaultCompany, CompanyConfig } from '@/lib/company-config-template';
+import { defaultCompany } from '@/lib/company-config';
 
 interface CompanyContextType {
   company: CompanyTenant | null;
@@ -41,7 +41,7 @@ export function CompanyProvider({
           }
         } else {
           // Default to first active company or use default template
-          const companies = Object.values(await import('@/lib/company-store').then(m => m.companies));
+          const companies = Object.values((await import('@/lib/company-store')).companies);
           const firstActive = companies.find(c => c.config.saas.isActive);
           if (firstActive) {
             setCompany(firstActive);
@@ -50,7 +50,10 @@ export function CompanyProvider({
             setCompany({
               id: 'default',
               subdomain: 'default',
-              config: defaultCompany,
+              config: {
+                ...defaultCompany,
+                saas: { subdomain: 'default', isActive: true, plan: 'starter' },
+              },
             });
           }
         }
@@ -72,19 +75,20 @@ export function CompanyProvider({
   );
 }
 
-export function useCompany(): CompanyConfig {
+// Use a simple config type that excludes company-specific fields
+export type SimpleCompanyConfig = typeof defaultCompany;
+
+export function useCompany(): SimpleCompanyConfig {
   const context = useContext(CompanyContext);
   
   // For backwards compatibility, return default config if no company loaded
   if (!context.company) {
     // Return default company config synchronously
-    return {
-      ...defaultCompany,
-      saas: { subdomain: null, isActive: true, plan: 'starter' as const },
-    };
+    return defaultCompany;
   }
   
-  return context.company.config;
+  // Return company config without saas-specific typing issues
+  return context.company.config as SimpleCompanyConfig;
 }
 
 export function useCompanyTenant(): CompanyTenant | null {

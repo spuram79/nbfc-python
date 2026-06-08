@@ -3,13 +3,13 @@
  * This allows the platform to serve multiple NBFC companies
  */
 
-import { defaultCompany, type CompanyConfig } from './company-config-template';
+import { companyConfig as defaultCompany } from './company-config';
 
 // In-memory company store (in production, use a database)
 export interface CompanyTenant {
   id: string;
   subdomain: string;
-  config: CompanyConfig;
+  config: any;
 }
 
 // Pre-configured companies ready for SaaS
@@ -103,7 +103,7 @@ export function getAllCompanies(): CompanyTenant[] {
 }
 
 // Register a new company (SaaS onboarding)
-export function registerCompany(id: string, subdomain: string, config: Partial<CompanyConfig>): CompanyTenant {
+export function registerCompany(id: string, subdomain: string, config: any): CompanyTenant {
   const newCompany: CompanyTenant = {
     id,
     subdomain: subdomain.toLowerCase(),
@@ -118,7 +118,7 @@ export function registerCompany(id: string, subdomain: string, config: Partial<C
 }
 
 // Update company configuration
-export function updateCompany(id: string, updates: Partial<CompanyConfig>): CompanyTenant | undefined {
+export function updateCompany(id: string, updates: any): CompanyTenant | undefined {
   const company = companies[id];
   if (!company) return undefined;
   

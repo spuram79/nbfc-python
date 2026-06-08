@@ -117,7 +117,7 @@ export class CollectionsService {
         AND ls.status IN ('pending', 'overdue', 'partial')
     `, [companyId, startDate, endDate]);
 
-    const row = result.rows[0];
+    const row = result.rows[0] as any;
     const total = parseFloat(row.total_overdue) || 0;
     const npa = parseFloat(row.npa_amount) || 0;
     const recovered = parseFloat(row.recovered_amount) || 0;
@@ -149,7 +149,7 @@ export class CollectionsService {
       WHERE l.company_id = $1
     `, [companyId]);
 
-    const row = result.rows[0];
+    const row = result.rows[0] as any;
     const sanctioned = parseFloat(row.total_sanctioned) || 0;
     const netNpa = parseFloat(row.net_npa) || 0;
 

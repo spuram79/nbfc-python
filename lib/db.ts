@@ -55,6 +55,7 @@ export interface LoanApplication {
 export interface Loan {
   loan_id: string;
   application_id: string;
+  customer_id?: string;
   disbursement_date?: Date;
   actual_amount: number;
   status: 'active' | 'closed' | 'defaulted' | 'npa';
@@ -273,14 +274,16 @@ export class DatabaseService {
     interest: number;
     total_payment: number;
     status?: string;
+    paid_amount?: number;
   }): Promise<any> {
     const result = await this.query(
       `INSERT INTO loan_schedules (schedule_id, loan_id, installment_no, due_date, principal, interest, total_payment, status, paid_amount, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, NOW())
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
        RETURNING *`,
       [
         schedule.schedule_id, schedule.loan_id, schedule.installment_no, schedule.due_date,
-        schedule.principal, schedule.interest, schedule.total_payment, schedule.status || 'pending'
+        schedule.principal, schedule.interest, schedule.total_payment, schedule.status || 'pending',
+        schedule.paid_amount ?? 0
       ]
     );
     return result.rows[0];

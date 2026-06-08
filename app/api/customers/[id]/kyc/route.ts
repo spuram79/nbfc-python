@@ -37,13 +37,14 @@ export async function POST(
       const documents: KYCDocument[] = [];
       
       for (const file of files) {
-        const blob = file as Blob;
-        const buffer = Buffer.from(await blob.arrayBuffer());
+        // TypeScript file type for FormData
+        const fileInfo = file as File;
+        const buffer = Buffer.from(await fileInfo.arrayBuffer());
         
         const document = await DocumentService.uploadDocument({
           buffer,
-          originalName: file.name || 'document',
-          mimeType: blob.type || 'application/pdf',
+          originalName: fileInfo.name || 'document',
+          mimeType: fileInfo.type || 'application/pdf',
           customer_id: customerId,
           type: formData.get('type') as DocumentType || 'id_proof',
           company_id: companyId,
