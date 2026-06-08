@@ -1,0 +1,215 @@
+# System Architecture Diagrams
+
+This file contains Mermaid diagrams for the NBFC SaaS Platform architecture.
+
+## 1. Microservices Architecture
+
+```mermaid
+graph TB
+    subgraph "API Layer"
+        A[API Gateway]
+    end
+    
+    subgraph "Core Services"
+        B[Auth Service]
+        C[Config Service]
+    end
+    
+    subgraph "Loan Processing"
+        D[Customer Service]
+        E[Loan Service]
+        F[Underwriting Service]
+        G[Disbursement Service]
+        H[Document Service]
+    end
+    
+    subgraph "Recovery & Compliance"
+        I[Collections Service]
+        J[Reporting Service]
+        K[Compliance Service]
+    end
+    
+    A --> B
+    A --> C
+    A --> D
+    A --> E
+    A --> F
+    A --> G
+    A --> H
+    A --> I
+    A --> J
+    A --> K
+```
+
+## 2. Micro Frontend Applications
+
+```mermaid
+graph LR
+    A[API Gateway] --> B[Central Config]
+    A --> C[Auth Service]
+    
+    subgraph "MFE Shell"
+        D[Shell Application]
+    end
+    
+    subgraph "Role-Based Apps"
+        E[Branch Operations]
+        F[Field Agent]
+        G[Customer Portal]
+        H[Admin Console]
+        I[Collections App]
+    end
+    
+    D --> E
+    D --> F
+    D --> G
+    D --> H
+    D --> I
+    
+    E --> A
+    F --> A
+    G --> A
+    H --> A
+    I --> A
+```
+
+## 3. Data Flow Architecture
+
+```mermaid
+flowchart LR
+    A[Customer MFE] --> B[API Gateway]
+    C[Branch MFE] --> B
+    D[Field Agent MFE] --> B
+    E[Admin MFE] --> B
+    
+    B --> F[Auth Service]
+    B --> G[Customer Service]
+    B --> H[Loan Service]
+    B --> I[Underwriting Service]
+    B --> J[Disbursement Service]
+    B --> K[Collections Service]
+    
+    G --> L[(Customer DB)]
+    H --> M[(Loan DB)]
+    I --> N[(Underwriting DB)]
+    J --> O[(Payment DB)]
+    K --> P[(Collections DB)]
+    
+    Q[(Redis Cache)] -.-> B
+    R[(Elasticsearch)] -.-> K
+```
+
+## 4. Bank-Level Architecture (100 Branches)
+
+```mermaid
+graph TB
+    A[Head Office - Mumbai] --> B[Config Server]
+    A --> C[Auth Server]
+    A --> D[Audit Server]
+    
+    B --> E[Branch 001 - Delhi]
+    B --> F[Branch 002 - Delhi]
+    B --> G[Branch 003 - Delhi]
+    
+    subgraph "Central Services"
+        H[Kafka Cluster]
+        I[Elasticsearch Cluster]
+        J[Redis Cluster]
+        K[PostgreSQL Master]
+    end
+    
+    subgraph "Branch Layer"
+        L[Branch Servers<br/>3 nodes each]
+        M[Local Cache]
+        N[Backup Storage]
+    end
+    
+    A --> H
+    A --> I
+    A --> J
+    K --> A
+    
+    E -.-> L
+    F -.-> L
+    G -.-> L
+    L <--> M
+    L <--> N
+```
+
+## 5. Loan Processing Workflow
+
+```mermaid
+sequenceDiagram
+    participant C as Customer
+    participant P as Web/Mobile App
+    participant API as API Gateway
+    participant CS as Customer Service
+    participant LS as Loan Service
+    participant US as Underwriting Service
+    participant DS as Disbursement Service
+    participant DB as Database
+    
+    C->>P: Apply for Loan
+    P->>API: Submit Application
+    API->>CS: Create Customer
+    CS->>DB: Save Customer
+    API->>LS: Create Loan App
+    LS->>DB: Save Loan
+    API->>US: Trigger Underwriting
+    US->>DB: Store Assessment
+    US-->>API: Risk Score
+    API->>DS: Initiate Disbursement
+    DS->>DB: Update Status
+    DS-->>C: Funds Credited
+```
+
+## 6. Collections Process Flow
+
+```mermaid
+flowchart TD
+    A[Overdue Accounts] --> B[Tier 1: Auto Reminders]
+    B --> C[Tier 2: CS Team Call]
+    C --> D{Response?}
+    D -->|Partial Payment| E[Accept & Restructure]
+    D -->|Full Payment| F[Close Account]
+    D -->|No Response| G[Tier 3: Field Visit]
+    G --> H[Payment Collection]
+    H --> I[Update Records]
+    I --> J[Monitoring]
+    
+    E --> K[Payment Plan]
+    F --> L[Close Loan]
+    K --> M[Monthly Review]
+```
+
+## 7. Security Architecture
+
+```mermaid
+flowchart LR
+    A[Client Request] --> B[WAF]
+    B --> C[API Gateway]
+    C --> D[Auth Service]
+    D --> E[Token Validation]
+    E --> F[Role Check]
+    F --> G[Resource Access]
+    
+    H[Compliance] --> I[Audit Logs]
+    J[Monitoring] --> K[Alerts]
+    L[Encryption] --> M[AES-256]
+    N[TLS 1.3] --> O[API Gateway]
+```
+
+## 8. Deployment Pipeline
+
+```mermaid
+graph LR
+    A[Code Commit] --> B[CI Pipeline]
+    B --> C[Test Suite]
+    C --> D[Security Scan]
+    D --> E[Build Docker Image]
+    E --> F[Deploy to Staging]
+    F --> G[Staging Tests]
+    G --> H[Deploy to Prod]
+    H --> I[Monitoring]
+    I --> J[Alerting]
+```
