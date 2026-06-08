@@ -5,6 +5,30 @@
 
 This directory contains the complete technical documentation for the NBFC-Python application. This serves as the bible for new developers contributing to or enhancing the tool.
 
+## Architecture - Multi-Application Monorepo
+
+**This is NOT the traditional Next.js application. The platform has been restructured into a Microservices Architecture with Micro Frontend patterns.**
+
+### New Architecture
+- **10 Microservices** (Node.js, Python, Java)
+- **5 Micro Frontend Applications** (React, PWA)
+- **Shared Packages** (UI, Utils, Types, Config)
+- **Infrastructure as Code** (Docker, Kubernetes)
+
+### Structure
+```
+TechDesign/
+├── architecture/              # System architecture documents
+├── apps/                      # App designs (Admin, Branch, Customer, Field Agent, Collections)
+├── services/                  # Service designs (Auth, Customer, Loan, etc.)
+├── business-process/          # Business flows and requirements
+├── diagrams/                  # Architecture diagrams
+├── api/                       # API documentation
+├── data/                      # Data models
+├── security/                  # Security design
+└── deployment/                # Deployment guides
+```
+
 ## Quick Start
 
 This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC companies. 
@@ -24,6 +48,9 @@ This application is a **Multi-Tenant SaaS Lending Platform** designed for NBFC c
 
 | Directory | Description |
 |-----------|-------------|
+| `architecture/` | System architecture and role-based applications |
+| `apps/` | App designs (Admin, Branch, Customer, Field Agent, Collections) |
+| `services/` | Service designs (Auth, Customer, Loan, Underwriting, etc.) |
 | `diagrams/` | Draw.io (.drawio) architecture and design diagrams |
 | `api/` | API design and endpoint documentation |
 | `data/` | Data model and database schema documentation |

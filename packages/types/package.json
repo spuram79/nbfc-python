@@ -1,0 +1,6 @@
+{
+  "name": "@nbfc/types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript Types",
+  "main": "src/index.ts"
+}

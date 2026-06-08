@@ -1,0 +1,24 @@
+# Git attributes for monorepo
+
+# Ignore legacy files that are no longer needed
+/app/* export-ignore
+/lib/* export-ignore
+/types/* export-ignore
+/public/* export-ignore
+/.next/* export-ignore
+/tsconfig.tsbuildinfo export-ignore
+
+# Keep new structure
+/apps package
+/services package
+/packages package
+/infrastructure package
+/docs package
+/nginx package
+/SOLUTION_STRUCTURE.md
+/README.md
+/package.json
+/.gitignore
+/.gitattributes
+/DOCKER-DEPLOYMENT.md
+/docker-compose.prod.yml

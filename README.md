@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NBFC Python - Multi-Application Monorepo
+
+This is a **Microservices Architecture with Micro Frontend patterns** for an NBFC SaaS platform supporting 100 branches with ₹2000 Cr annual business volume.
+
+## Architecture Overview
+
+```
+nbfc-python/
+├── apps/                     # Micro Frontend Applications
+│   ├── admin/               # Admin Console
+│   ├── branch/              # Branch Operations
+│   ├── customer/            # Customer Portal (PWA)
+│   ├── field-agent/         # Field Agent (Mobile)
+│   └── collections/         # Collections Management
+├── services/                 # Backend Microservices
+│   ├── auth/                # Authentication Service
+│   ├── config/              # Configuration Service
+│   ├── customer/            # Customer Service
+│   ├── loan/                # Loan Service
+│   ├── underwriting/        # Underwriting Service (Python)
+│   ├── disbursement/        # Disbursement Service
+│   ├── document/            # Document Service (Python)
+│   ├── collections/         # Collections Service
+│   ├── reporting/           # Reporting Service (Python)
+│   └── compliance/          # Compliance Service (Java)
+├── packages/                 # Shared Libraries
+│   ├── ui/                  # Shared UI Components
+│   ├── utils/               # Utility Functions
+│   ├── types/               # TypeScript Types
+│   └── config/              # Shared Configuration
+├── infrastructure/           # Infrastructure as Code
+└── docs/                     # Documentation
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 20+
+- Docker
+- Kubernetes (for deployment)
+- PostgreSQL
+- Redis
 
+### Development Setup
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+npm install
+
+# Start all development servers
+npm run dev:all
+
+# Start individual apps
+npm run dev:admin
+npm run dev:branch
+npm run dev:customer
+npm run dev:field-agent
+npm run dev:collections
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Docker Development
+```bash
+# Start all services locally
+npm run docker:up
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Apps
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| App | Port | Description |
+|-----|------|-------------|
+| Admin Console | 3001 | Enterprise administration |
+| Branch Operations | 3002 | Branch staff operations |
+| Customer Portal | 3003 | Customer self-service (PWA) |
+| Field Agent | 3004 | Mobile recovery app |
+| Collections | 3005 | Collections management |
 
-## Learn More
+## Services Overview
 
-To learn more about Next.js, take a look at the following resources:
+| Service | Port | Technology | Purpose |
+|---------|------|------------|---------|
+| Auth Service | 8081 | Node.js | Authentication & Authorization |
+| Config Service | 8082 | Node.js | Centralized Configuration |
+| Customer Service | 8083 | Node.js | Customer Management |
+| Loan Service | 8084 | Node.js | Loan Processing |
+| Underwriting | 8085 | Python | Risk Assessment |
+| Disbursement | 8086 | Node.js | Payment Processing |
+| Document | 8087 | Python | OCR & Storage |
+| Collections | 8088 | Node.js | Recovery Management |
+| Reporting | 8089 | Python | Analytics & Reports |
+| Compliance | 8090 | Java | KYC/AML Compliance |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Kubernetes
+```bash
+npm run k8s:deploy
+```
 
-## Deploy on Vercel
+### Production Build
+```bash
+npm run build:all
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Solution Structure](./SOLUTION_STRUCTURE.md)
+- [Tech Design Documentation](./TechDesign/)

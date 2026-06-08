@@ -1,0 +1,15 @@
+{
+  "name": "@nbfc/service-underwriting",
+  "version": "1.0.0",
+  "description": "Underwriting Service (Python)",
+  "scripts": {
+    "dev": "python -m src.main",
+    "start": "python -m src.main"
+  },
+  "dependencies": {
+    "fastapi": "^0.100.0",
+    "scikit-learn": "^1.3.0",
+    "pandas": "^2.0.0",
+    "kafkajs": "^2.0.0"
+  }
+}

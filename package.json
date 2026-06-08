@@ -1,38 +1,35 @@
 {
-  "name": "nbfc-python",
-  "version": "0.1.0",
+  "name": "nbfc-multiapp-monorepo",
+  "version": "1.0.0",
+  "description": "NBFC SaaS Platform - Multi-Application Monorepo",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "db:init": "node -e \"require('./lib/db').initializeDatabase().catch(console.error)\""
+    "dev:all": "concurrently \"npm run dev:services\" \"npm run dev:apps\"",
+    "dev:services": "echo \"Starting microservices...\"",
+    "dev:apps": "concurrently \"npm run dev:admin\" \"npm run dev:branch\" \"npm run dev:customer\" \"npm run dev:field-agent\" \"npm run dev:collections\"",
+    "dev:admin": "cd apps/admin && npm run dev",
+    "dev:branch": "cd apps/branch && npm run dev",
+    "dev:customer": "cd apps/customer && npm run dev",
+    "dev:field-agent": "cd apps/field-agent && npm run dev",
+    "dev:collections": "cd apps/collections && npm run dev",
+    "build:all": "npm run build:apps && npm run build:services",
+    "build:apps": "concurrently \"cd apps/admin && npm run build\" \"cd apps/branch && npm run build\" \"cd apps/customer && npm run build\" \"cd apps/field-agent && npm run build\" \"cd apps/collections && npm run build\"",
+    "build:services": "echo \"Building services...\"",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "docker:build": "docker-compose -f infrastructure/docker-compose.yml build",
+    "docker:up": "docker-compose -f infrastructure/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f infrastructure/docker-compose.yml down",
+    "k8s:deploy": "kubectl apply -f infrastructure/k8s/",
+    "k8s:delete": "kubectl delete -f infrastructure/k8s/"
   },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.1063.0",
-    "@aws-sdk/lib-storage": "^3.1063.0",
-    "@types/jsonwebtoken": "^9.0.10",
-    "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^0.400.0",
-    "next": "16.2.4",
-    "pg": "^8.21.0",
-    "razorpay": "^2.9.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "uuid": "^10.0.0"
-  },
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/aws-sdk": "^0.0.42",
-    "@types/node": "^20",
-    "@types/pg": "^8.10.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/uuid": "^10.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "concurrently": "^8.2.0",
+    "lerna": "^8.1.0"
   }
 }

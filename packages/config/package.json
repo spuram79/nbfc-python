@@ -1,0 +1,6 @@
+{
+  "name": "@nbfc/config",
+  "version": "1.0.0",
+  "description": "Shared Configuration",
+  "main": "src/index.ts"
+}

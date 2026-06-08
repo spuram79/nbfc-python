@@ -1,0 +1,12 @@
+{
+  "name": "@nbfc/utils",
+  "version": "1.0.0",
+  "description": "Shared Utility Functions",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0"
+  }
+}

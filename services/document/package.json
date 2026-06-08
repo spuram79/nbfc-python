@@ -1,0 +1,15 @@
+{
+  "name": "@nbfc/service-document",
+  "version": "1.0.0",
+  "description": "Document Service (Python)",
+  "scripts": {
+    "dev": "python -m src.main",
+    "start": "python -m src.main"
+  },
+  "dependencies": {
+    "fastapi": "^0.100.0",
+    "pillow": "^10.0.0",
+    "pytesseract": "^0.3.10",
+    "boto3": "^1.28.0"
+  }
+}
