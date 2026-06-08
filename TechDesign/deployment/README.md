@@ -4,29 +4,30 @@
 
 This document describes the deployment architecture, CI/CD pipeline, and infrastructure for the NBFC-Python application.
 
-## Infrastructure Diagram
+## Infrastructure Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        AWS Cloud                             │
+│                        AWS Cloud (ap-south-1)                 │
+│                                                             │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │                    VPC (ap-south-1)                      │ │
+│  │                    VPC                                │ │
 │  │                                                         │ │
 │  │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐ │ │
-│  │  │   Public    │   │   Private   │   │   Database  │ │ │
+│  │  │   Public    │   │   Private   │   │  Database   │ │ │
 │  │  │    Subnet   │   │    Subnet   │   │   Subnet    │ │ │
-│  │  │             │   │             │   │             │ │ │
-│  │  │ NAT Gateway │   │  EKS Nodes  │   │  RDS/Aurora │ │ │
-│  │  │             │   │             │   │             │ │ │
+│  │  │             │   │             │   │             │ │
+│  │  │ NAT Gateway │   │  ECS/Fargate│   │  RDS/Aurora │ │ │
+│  │  │             │   │             │   │             │ │
 │  │  └─────────────┘   └─────────────┘   └─────────────┘ │ │
 │  └─────────────────────────────────────────────────────────┘ │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │              Developer Tools                                │ │
-│  │  - GitHub (source control)                               │ │
-│  │  - GitHub Actions (CI/CD)                                │ │
-│  │  - ECR (container registry)                              │ │
-│  │  - ArgoCD (GitOps)                                       │ │
+│  │              CI/CD & Developer Tools                    │ │
+│  │  - GitHub (source control)                             │ │
+│  │  - GitHub Actions (CI/CD)                              │ │
+│  │  - ECR (container registry)                            │ │
+│  │  - ArgoCD (GitOps)                                     │ │
 │  └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -49,10 +50,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/nbfc:${{ github.sha }} .
-          docker push ${{ secrets.ECR_REGISTRY }}/nbfc:${{ github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
       
       - name: Run tests
         run: npm test
@@ -60,11 +65,13 @@ jobs:
       - name: Security scan
         uses: snyk/actions/node@master
       
-      - name: Deploy to Kubernetes
+      - name: Build
+        run: npm run build
+      
+      - name: Deploy
         run: |
-          helm upgrade --install nbfc \
-            --set image.tag=${{ github.sha }} \
-            ./helm/nbfc
+          # Deploy to ECS/Fargate
+          aws ecs update-service ...
 ```
 
 ### Deployment Stages
@@ -73,50 +80,14 @@ jobs:
 2. **Beta** → Manual approval → Deploy to pre-prod
 3. **Main** → Deploy to production (blue-green)
 
-## Kubernetes Architecture
-
-### Helm Chart Structure
-```
-helm/nbfc/
-├── Chart.yaml
-├── values.yaml
-├── templates/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── ingress.yaml
-│   ├── configmap.yaml
-│   ├── secret.yaml
-│   └── hpa.yaml
-└── charts/
-    └── subchart-dependencies
-```
-
-### Deployments
-
-| Component | Replicas | Resources | Autoscale |
-|-----------|----------|-----------|-----------|
-| web-ui | 3 | 512Mi/256m | Yes (CPU > 70%) |
-| api-server | 4 | 1Gi/512m | Yes (CPU > 70%) |
-| worker | 2 | 1Gi/512m | Yes (Queue > 100) |
-
-### Persistent Volumes
-
-| Component | Storage Class | Size | Backup |
-|-----------|---------------|------|--------|
-| PostgreSQL | gp3-encrypted | 100Gi | Daily RDS Snapshot |
-| MongoDB | gp3-encrypted | 50Gi | Daily |
-| Redis | gp3-encrypted | 10Gi | Daily |
-
 ## Environment Configuration
 
 ### Environment Variables
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:pass@db.cluster.local/nbfc
+DATABASE_URL=postgresql://nbfc:pass@db.cluster.local/nbfc
 MONGO_URL=mongodb://mongo.cluster.local:27017/nbfc
-
-# Redis
 REDIS_URL=redis://redis.cluster.local:6379
 
 # External Services
@@ -124,8 +95,8 @@ RAZORPAY_KEY_ID=rzp_live_xxxxx
 RAZORPAY_KEY_SECRET=xxxxxx
 
 # Security
-JWT_SECRET_KEY_FILE=/run/secrets/jwt-secret
-VAULT_ADDR=https://vault.cluster.local
+JWT_SECRET=your-secret-key
+ENCRYPTION_KEY_PATH=/run/secrets/encryption-key
 
 # Feature Flags
 FEATURE_NEW_DASHBOARD=true
@@ -134,41 +105,103 @@ FEATURE_NEW_DASHBOARD=true
 ### Secrets Management
 
 ```yaml
-# Kubernetes Secrets
-apiVersion: v1
-kind: Secret
-metadata:
-  name: nbfc-secrets
-type: Opaque
-data:
-  jwt-secret: <base64-encoded>
-  db-password: <base64-encoded>
-  razorpay-key: <base64-encoded>
+# AWS Secrets Manager
+DB_PASSWORD: ${ssm:/nbfc/db-password}
+JWT_SECRET: ${ssm:/nbfc/jwt-secret}
+RAZORPAY_SECRET: ${ssm:/nbfc/razorpay-secret}
+
+# Next.js .env file (server-side)
+DATABASE_URL=postgresql://user:${DB_PASSWORD}@db.cluster.local/nbfc
+JWT_SECRET=${JWT_SECRET}
 ```
+
+## Container Architecture
+
+### Docker Configuration
+
+```dockerfile
+FROM node:18-alpine AS base
+WORKDIR /app
+
+# Dependencies
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Build
+COPY . .
+RUN npm run build
+
+# Runtime
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=base /app .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Container Registry
+
+| Environment | Registry | Tag Strategy |
+|-------------|----------|--------------|
+| Development | ECR | `dev-{commit-sha}` |
+| Staging | ECR | `staging-{branch}` |
+| Production | ECR | `prod-{git-tag}` |
+
+## Kubernetes Configuration (ECS Fargate Equivalent)
+
+### Service Definition
+
+| Component | CPU | Memory | Replicas | Autoscaling |
+|-----------|-----|--------|----------|-------------|
+| web-ui | 512 | 1024 MB | 3 | Yes (CPU > 70%) |
+| api-server | 1024 | 2048 MB | 4 | Yes (CPU > 70%) |
+| worker | 1024 | 2048 MB | 2 | Yes (Queue > 100) |
+
+### Persistent Volumes
+
+| Component | Storage Class | Size | Backup |
+|-----------|---------------|------|--------|
+| PostgreSQL | gp3-encrypted | 100 Gi | Daily RDS Snapshot |
+| MongoDB | gp3-encrypted | 50 Gi | Daily |
+| Redis | gp3-encrypted | 10 Gi | Every 6 hours |
 
 ## Monitoring Stack
 
-### Prometheus Metrics
+### Metrics
 
 | Metric | Description | Alert Threshold |
 |--------|-------------|-----------------|
 | `http_request_duration_seconds` | API latency | > 2s avg |
 | `http_requests_total` | Request count | - |
-| `active loans` | Active loan count | - |
+| `active_loans` | Active loan count | - |
 | `npa_ratio` | Non-performing assets | > 5% |
 
-### Grafana Dashboards
+### Dashboard Structure
 
-1. **API Dashboard**: Request rate, latency, errors
-2. **Database Dashboard**: Connections, queries/sec, latency
-3. **Business Dashboard**: Loans originated, collections, NPAs
+1. **API Dashboard**
+   - Request rate
+   - Latency distribution
+   - Error rates
+   - Status codes breakdown
+
+2. **Database Dashboard**
+   - Connections
+   - Queries/sec
+   - Latency
+   - Cache hit ratio
+
+3. **Business Dashboard**
+   - Loans originated
+   - Collections
+   - NPAs
+   - Conversion rates
 
 ### Logging Pipeline
 
 ```
-Application Logs → Fluent Bit → Loki → Grafana
+Application Logs → CloudWatch → Lambda → Elasticsearch → Kibana
 Error Logs → Sentry → Slack/PagerDuty
-Audit Logs → Elasticsearch → Kibana
+Audit Logs → MongoDB → Compliance Reports
 ```
 
 ## Backup & Disaster Recovery
@@ -217,6 +250,54 @@ spec:
 
 ### Database Scaling
 
-- **Vertical**: RDS instance upgrade (db.t4g.medium → db.t4g.large)
-- **Horizontal**: Read replicas, connection pooling
-- **Sharding**: Citus extension for PostgreSQL (future)
+- **Vertical:** RDS instance upgrade
+- **Horizontal:** Read replicas, connection pooling
+- **Sharding:** Citus extension (future)
+
+## Multi-Tenant Deployment
+
+### Tenant Isolation Strategy
+
+1. **Database:** Row-level security with company_id
+2. **Cache:** Separate Redis keys per company
+3. **Storage:** S3 prefixes per company
+4. **Monitoring:** Company-specific metrics
+
+### Onboarding New Company
+
+1. Add company to `lib/company-store.ts`
+2. Create database schema (if not shared)
+3. Set up monitoring alerts
+4. Configure DNS/CNAME
+5. Send onboarding email
+
+## Health Checks
+
+### Liveness Probe
+```
+GET /api/health
+Response: 200 OK
+Content: {"status": "healthy"}
+```
+
+### Readiness Probe
+```
+GET /api/health/ready
+Response: 200 OK
+Content: {"database": "connected", "redis": "connected"}
+```
+
+## Rollback Strategy
+
+1. **Automated:** Health check failures trigger rollback
+2. **Manual:** `helm rollback` command
+3. **Database:** Point-in-time recovery to last snapshot
+
+## Cost Optimization
+
+| Resource | Optimization |
+|----------|--------------|
+| Compute | Spot instances for workers |
+| Storage | S3 Intelligent Tiering |
+| Database | Aurora Serverless for variable load |
+| Cache | Redis with TTL for ephemeral data |
