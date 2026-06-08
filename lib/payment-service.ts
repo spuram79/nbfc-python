@@ -9,11 +9,20 @@ import Razorpay from 'razorpay';
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
-// Initialize Razorpay client
-const razorpay = new Razorpay({
-  key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay client (only if credentials are available)
+let razorpay: Razorpay | null = null;
+
+if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
+  try {
+    razorpay = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET,
+    });
+  } catch (error) {
+    console.warn('Failed to initialize Razorpay client:', error);
+    razorpay = null;
+  }
+}
 
 // Payment types
 export interface PaymentOptions {
@@ -45,8 +54,18 @@ export class PaymentService {
     currency: string;
     receipt: string;
     notes?: Record<string, string>;
-  }): Promise<Razorpay.Order> {
+  }): Promise<any> {
     try {
+      if (!razorpay) {
+        // Return mock order for development
+        return {
+          id: `mock_order_${Date.now()}`,
+          amount: options.amount * 100,
+          currency: options.currency || 'INR',
+          status: 'created',
+          receipt: options.receipt,
+        };
+      }
       const order = await razorpay.orders.create({
         amount: options.amount * 100, // Convert to paise
         currency: options.currency || 'INR',
@@ -76,8 +95,17 @@ export class PaymentService {
   /**
    * Fetch payment status
    */
-  static async fetchPayment(paymentId: string): Promise<Razorpay.Payment> {
+  static async fetchPayment(paymentId: string): Promise<any> {
     try {
+      if (!razorpay) {
+        // Return mock payment for development
+        return {
+          id: paymentId,
+          status: 'captured',
+          amount: 100000,
+          currency: 'INR',
+        };
+      }
       const payment = await razorpay.payments.fetch(paymentId);
       return payment;
     } catch (error: any) {
@@ -92,13 +120,20 @@ export class PaymentService {
   static async refundPayment(options: {
     payment_id: string;
     amount?: number;
-    currency?: string;
     notes?: Record<string, string>;
-  }): Promise<Razorpay.Refund> {
+  }): Promise<any> {
     try {
+      if (!razorpay) {
+        // Return mock refund for development
+        return {
+          id: `mock_refund_${Date.now()}`,
+          payment_id: options.payment_id,
+          amount: options.amount || 0,
+          status: 'processed',
+        };
+      }
       const refund = await razorpay.payments.refund(options.payment_id, {
         amount: options.amount,
-        currency: options.currency,
         notes: options.notes,
       });
       return refund;

@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
-import { companyConfig } from '@/lib/company-config';
+import { companyConfig } from '@/lib/company-config-template';
 
 export default function DashboardPage() {
   // Mock statistics

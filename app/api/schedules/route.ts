@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
         total_payment: Math.round(emi * 100) / 100,
         status: 'pending',
         paid_amount: 0,
-        created_at: new Date(),
       });
       
       schedules.push(schedule);

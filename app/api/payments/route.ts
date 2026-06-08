@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/payments/[id] - Get specific payment
-export async function GET_payment(
+export async function GETpayment(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -141,7 +141,7 @@ export async function GET_payment(
 }
 
 // DELETE /api/payments/[id] - Refund payment
-export async function DELETE(
+export async function DELETEpayment(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {

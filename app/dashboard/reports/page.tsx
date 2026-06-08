@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, BarChart3, Download, FileText } from 'lucide-react';
-import { companyConfig } from '@/lib/company-config';
+import { companyConfig } from '@/lib/company-config-template';
 
 export default function ReportsPage() {
   // Mock reports data

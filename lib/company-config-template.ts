@@ -74,4 +74,6 @@ export const defaultCompany = {
   },
 } as const;
 
+// Alias for backwards compatibility
+export const companyConfig = defaultCompany;
 export type CompanyConfig = typeof defaultCompany;

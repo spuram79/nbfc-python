@@ -104,12 +104,12 @@ export class DatabaseService {
   }
 
   // Company Management
-  async getCompany(id: string): Promise<{ id: string; name: string; is_active: boolean; application?: any } | null> {
+  async getCompany(id: string): Promise<{ id: string; name: string; is_active: boolean; application?: any; theme?: any } | null> {
     const result = await this.query(
       'SELECT id, name, is_active, application, theme FROM companies WHERE id = $1',
       [id]
     );
-    return result.rows[0] || null;
+    return (result.rows[0] as { id: string; name: string; is_active: boolean; application?: any; theme?: any } | null) || null;
   }
 
   async createCompany(company: { id: string; name: string; full_name: string; is_active?: boolean }): Promise<any> {
@@ -128,7 +128,7 @@ export class DatabaseService {
       'SELECT * FROM customers WHERE customer_id = $1 AND company_id = $2',
       [id, companyId]
     );
-    return result.rows[0] || null;
+    return (result.rows[0] as Customer) || null;
   }
 
   async createCustomer(customer: Omit<Customer, 'created_at' | 'updated_at'>): Promise<Customer> {
@@ -143,7 +143,7 @@ export class DatabaseService {
         customer.kyc_status, customer.risk_score, customer.company_id, now, now
       ]
     );
-    return result.rows[0];
+    return result.rows[0] as Customer;
   }
 
   async listCustomers(companyId: string, search?: string): Promise<{ customers: Customer[]; total: number }> {
@@ -166,8 +166,8 @@ export class DatabaseService {
     );
     
     return {
-      customers: dataResult.rows,
-      total: parseInt(countResult.rows[0].count, 10)
+      customers: dataResult.rows as Customer[],
+      total: parseInt((countResult.rows[0] as { count: string }).count, 10)
     };
   }
 
@@ -176,7 +176,7 @@ export class DatabaseService {
       'SELECT * FROM loan_applications WHERE application_id = $1 AND company_id = $2',
       [id, companyId]
     );
-    return result.rows[0] || null;
+    return (result.rows[0] as LoanApplication) || null;
   }
 
   async createLoanApplication(application: Omit<LoanApplication, 'created_at' | 'updated_at'>): Promise<LoanApplication> {
@@ -192,7 +192,7 @@ export class DatabaseService {
         application.company_id, now, now
       ]
     );
-    return result.rows[0];
+    return result.rows[0] as LoanApplication;
   }
 
   async listLoans(companyId: string, filters?: { customerId?: string; status?: string }): Promise<{ loans: LoanApplication[]; total: number }> {
@@ -218,8 +218,8 @@ export class DatabaseService {
     const dataResult = await this.query(`${query} ORDER BY created_at DESC`, params);
     
     return {
-      loans: dataResult.rows,
-      total: parseInt(countResult.rows[0].count, 10)
+      loans: dataResult.rows as LoanApplication[],
+      total: parseInt((countResult.rows[0] as { count: string }).count, 10)
     };
   }
 
@@ -228,7 +228,7 @@ export class DatabaseService {
       'SELECT * FROM loans WHERE loan_id = $1 AND company_id = $2',
       [id, companyId]
     );
-    return result.rows[0] || null;
+    return (result.rows[0] as Loan) || null;
   }
 
   async createLoan(loan: Omit<Loan, 'company_id'> & { company_id: string }): Promise<Loan> {
@@ -238,7 +238,7 @@ export class DatabaseService {
        RETURNING *`,
       [loan.loan_id, loan.application_id, loan.disbursement_date, loan.actual_amount, loan.status, loan.closed_date, loan.company_id]
     );
-    return result.rows[0];
+    return result.rows[0] as Loan;
   }
 
   async createPayment(payment: Omit<Payment, 'company_id'> & { company_id: string }): Promise<Payment> {
@@ -248,7 +248,7 @@ export class DatabaseService {
        RETURNING *`,
       [payment.payment_id, payment.loan_id, payment.schedule_id, payment.amount, payment.method, payment.status, payment.transaction_date, payment.reference_number, payment.company_id]
     );
-    return result.rows[0];
+    return result.rows[0] as Payment;
   }
 
   async listPayments(companyId: string, loanId?: string): Promise<Payment[]> {
@@ -261,7 +261,7 @@ export class DatabaseService {
     }
     
     const result = await this.query(`${query} ORDER BY transaction_date DESC`, params);
-    return result.rows;
+    return result.rows as Payment[];
   }
 
   // Loan Schedule Management

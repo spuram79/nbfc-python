@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { CompanyTenant, getCompanyBySubdomain } from '@/lib/company-store';
-import { defaultCompany } from '@/lib/company-config';
+import { defaultCompany } from '@/lib/company-config-template';
 
 interface CompanyContextType {
   company: CompanyTenant | null;

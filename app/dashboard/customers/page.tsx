@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, Search, Filter } from 'lucide-react';
-import { companyConfig } from '@/lib/company-config';
+import { companyConfig } from '@/lib/company-config-template';
 
 export default function CustomersPage() {
   // Mock customers

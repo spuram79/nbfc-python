@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { companyConfig } from '@/lib/company-config';
+import { companyConfig } from '@/lib/company-config-template';
 
 export default function LoginPage() {
   return (

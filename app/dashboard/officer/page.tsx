@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, Filter, Search } from 'lucide-react';
-import { companyConfig } from '@/lib/company-config';
+import { companyConfig } from '@/lib/company-config-template';
 
 export default async function LoanOfficerDashboard({ 
   searchParams 
