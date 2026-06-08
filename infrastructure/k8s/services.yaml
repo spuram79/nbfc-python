@@ -1,0 +1,373 @@
+# Additional Services Deployment for NBFC Platform
+# This file contains deployments for remaining services not in the main deployment.yaml
+
+# Disbursement Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disbursement-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: disbursement-service
+  template:
+    metadata:
+      labels:
+        app: disbursement-service
+    spec:
+      containers:
+      - name: disbursement-service
+        image: nbfc/disbursement-service:latest
+        ports:
+        - containerPort: 3008
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        - name: PAYMENT_GATEWAY
+          value: "razorpay"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disbursement-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: disbursement-service
+  ports:
+    - protocol: TCP
+      port: 3008
+      targetPort: 3008
+  type: ClusterIP
+
+# Document Service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: document-service
+  template:
+    metadata:
+      labels:
+        app: document-service
+    spec:
+      containers:
+      - name: document-service
+        image: nbfc/document-service:latest
+        ports:
+        - containerPort: 3009
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        - name: S3_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: S3_BUCKET_NAME
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: AWS_REGION
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: document-service
+  ports:
+    - protocol: TCP
+      port: 3009
+      targetPort: 3009
+  type: ClusterIP
+
+# Collections Service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collections-service
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: collections-service
+  template:
+    metadata:
+      labels:
+        app: collections-service
+    spec:
+      containers:
+      - name: collections-service
+        image: nbfc/collections-service:latest
+        ports:
+        - containerPort: 3010
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: REDIS_URL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collections-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: collections-service
+  ports:
+    - protocol: TCP
+      port: 3010
+      targetPort: 3010
+  type: ClusterIP
+
+# Reporting Service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporting-service
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reporting-service
+  template:
+    metadata:
+      labels:
+        app: reporting-service
+    spec:
+      containers:
+      - name: reporting-service
+        image: nbfc/reporting-service:latest
+        ports:
+        - containerPort: 3011
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporting-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: reporting-service
+  ports:
+    - protocol: TCP
+      port: 3011
+      targetPort: 3011
+  type: ClusterIP
+
+# Compliance Service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compliance-service
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compliance-service
+  template:
+    metadata:
+      labels:
+        app: compliance-service
+    spec:
+      containers:
+      - name: compliance-service
+        image: nbfc/compliance-service:latest
+        ports:
+        - containerPort: 3012
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        - name: S3_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: S3_BUCKET_NAME
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compliance-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: compliance-service
+  ports:
+    - protocol: TCP
+      port: 3012
+      targetPort: 3012
+  type: ClusterIP
+
+# Config Service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      containers:
+      - name: config-service
+        image: nbfc/config-service:latest
+        ports:
+        - containerPort: 3002
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nbfc-config
+              key: DATABASE_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: config-service
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002
+  type: ClusterIP
+
+# Elasticsearch for document search
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch
+  namespace: nbfc-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+        ports:
+        - containerPort: 9200
+        - containerPort: 9300
+        env:
+        - name: discovery.type
+          value: single-node
+        - name: ES_JAVA_OPTS
+          value: "-Xms512m -Xmx512m"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+  type: ClusterIP

@@ -1,0 +1,141 @@
+# NGINX Configuration for NBFC Platform
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nbfc-nginx-config
+  namespace: nbfc-platform
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      upstream auth-service {
+        server auth-service:3001;
+      }
+      upstream customer-service {
+        server customer-service:3003;
+      }
+      upstream loan-service {
+        server loan-service:3004;
+      }
+      upstream underwriting-service {
+        server underwriting-service:3007;
+      }
+      upstream disbursement-service {
+        server disbursement-service:3008;
+      }
+      upstream document-service {
+        server document-service:3009;
+      }
+      upstream collections-service {
+        server collections-service:3010;
+      }
+      upstream reporting-service {
+        server reporting-service:3011;
+      }
+      upstream compliance-service {
+        server compliance-service:3012;
+      }
+      
+      server {
+        listen 80;
+        
+        location /api/auth {
+          proxy_pass http://auth-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/customer {
+          proxy_pass http://customer-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/loan {
+          proxy_pass http://loan-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/underwriting {
+          proxy_pass http://underwriting-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/disbursement {
+          proxy_pass http://disbursement-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/document {
+          proxy_pass http://document-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/collections {
+          proxy_pass http://collections-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/reporting {
+          proxy_pass http://reporting-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+        
+        location /api/compliance {
+          proxy_pass http://compliance-service;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: nbfc-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nbfc-nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: nbfc-platform
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

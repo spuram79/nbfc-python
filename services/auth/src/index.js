@@ -7,41 +7,84 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.AUTH_SERVICE_PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production';
+const JWT_ACCESS_EXPIRY = process.env.JWT_ACCESS_EXPIRY || '15m';
+const JWT_REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
+
+// In-memory storage (replace with database in production)
+const users = [];
+const sessions = new Map(); // tokenId -> session data
+const passwordResetTokens = new Map(); // email -> reset token
+
+// Generate initial users
+(async () => {
+  const hashedPassword = await bcrypt.hash('admin123', 12);
+  users.push({
+    id: '1',
+    tenantId: 'tenant-001',
+    employeeId: 'EMP001',
+    branchId: null,
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@nbfc.com',
+    phone: '9999999999',
+    passwordHash: hashedPassword,
+    role: 'admin',
+    permissions: ['read', 'write', 'delete', 'manage_users', 'manage_branches'],
+    status: 'active',
+    lastLoginAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+
+  const branchHashedPassword = await bcrypt.hash('branch123', 12);
+  users.push({
+    id: '2',
+    tenantId: 'tenant-001',
+    employeeId: 'EMP002',
+    branchId: '1',
+    firstName: 'Branch',
+    lastName: 'Manager',
+    email: 'bm@nbfc.com',
+    phone: '8888888888',
+    passwordHash: branchHashedPassword,
+    role: 'branch_manager',
+    permissions: ['read', 'write', 'manage_customers', 'manage_loans'],
+    status: 'active',
+    lastLoginAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+
+  const agentHashedPassword = await bcrypt.hash('agent123', 12);
+  users.push({
+    id: '3',
+    tenantId: 'tenant-001',
+    employeeId: 'EMP003',
+    branchId: '1',
+    firstName: 'Field',
+    lastName: 'Agent',
+    email: 'agent@nbfc.com',
+    phone: '7777777777',
+    passwordHash: agentHashedPassword,
+    role: 'field_agent',
+    permissions: ['read', 'write', 'collect_payments', 'update_customer_info'],
+    status: 'active',
+    lastLoginAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+})();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// In-memory user storage (replace with database in production)
-const users = [
-  {
-    id: 1,
-    username: 'admin',
-    password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: 'admin123'
-    role: 'admin',
-    branchId: null
-  },
-  {
-    id: 2,
-    username: 'branch_manager',
-    password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: 'branch123'
-    role: 'branch_manager',
-    branchId: 1
-  },
-  {
-    id: 3,
-    username: 'field_agent',
-    password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password: 'agent123'
-    role: 'field_agent',
-    branchId: 1
-  }
-];
 
 // Routes
 /**
